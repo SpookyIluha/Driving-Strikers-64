@@ -316,8 +316,10 @@ void game_draw(){
     rspq_block_run(dplDraw);
     t3d_matrix_push(modelMatFP); 
     t3d_light_set_exposure(exposure);
-    //for(int i = 0; i < 4; i++) carplayer_draw_shadow(&carplayer[i]);
-    //playball_draw_shadow();
+    
+    if(gamestatus.state.game.settings.graphics == NICEST)
+      for(int i = 0; i < 4; i++) carplayer_draw_shadow(&carplayer[i]);
+    playball_draw_shadow();
 
     //rdpq_mode_antialias(AA_STANDARD);
     // quick-sort the entities so that they appear correct without a zbuffer
