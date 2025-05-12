@@ -575,7 +575,7 @@ void menu_league(){
 
                 joypad_buttons_t pressed = {0};
                 pressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
-                if(pressed.b && i < 7) {rspq_wait(); rspq_block_free(tableblock); return;}
+                if(pressed.b && i < 7) {i = 8; teams_league[0].points = -1; break;}
                 if(pressed.a && i < 7) {sound_play(teams[curteamagainst].voicenamefn, false); break;}
                 if(pressed.b && i >= 7) break;
 
