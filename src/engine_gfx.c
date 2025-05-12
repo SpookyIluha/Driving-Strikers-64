@@ -30,6 +30,12 @@ int randr(int min, int max){
   return (rand() % range) + min;
 }
 
+void iswap(int* a, int* b){
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+
 void rdpq_sprite_blit_anchor(sprite_t* sprite, rdpq_align_t horizontal, rdpq_valign_t vertical, float x, float y, rdpq_blitparms_t* parms){
     assert(sprite);
     int width = sprite->width;

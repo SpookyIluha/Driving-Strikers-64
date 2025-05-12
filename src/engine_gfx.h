@@ -87,6 +87,8 @@ inline int iwrap(int x, float min, float max) {
     return x;
 }
 
+void iswap(int* a, int* b);
+
 color_t get_rainbow_color(float s);
 
 /// @brief Random int [0-max)

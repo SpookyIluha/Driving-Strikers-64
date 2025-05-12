@@ -32,7 +32,7 @@ void state_init(){
     gamestatus.fixeddeltatime = 0.0f;
 
     gamestatus.state.game.settings.deadzone = 0.1f;
-    gamestatus.state.game.settings.duration = THREE_MINUTES;
+    gamestatus.state.game.settings.duration = TWO_MINUTES;
     gamestatus.state.game.settings.graphics = DEFAULT;
     gamestatus.state.game.settings.vibration = true;
 

@@ -532,7 +532,7 @@ void game_intro(){
     rdpq_detach_show();
 
   }
-  sound_play("voice/LetsGo", false);
+  sound_play("LetsGo", false);
 }
 
 void game_countdown(){
@@ -640,11 +640,13 @@ void game_score(){
     rdpq_mode_combiner(RDPQ_COMBINER_FLAT);
     rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
     rdpq_mode_antialias(AA_REDUCED);
+    
     for(int i = 0; i < 5; i++){
       int y = (i * 40) + 130;
       rdpq_set_prim_color(i % 2? RGBA32(0,20,20,128) : RGBA32(0,0,0,128));
       rdpq_fill_rectangle(45, y, display_get_width() - 45, y + 40);
     }
+
     rdpq_mode_combiner(RDPQ_COMBINER_TEX);
     rdpq_sprite_blit(button_a, 450, 425, NULL);
     rdpq_textparms_t parms; parms.align = ALIGN_CENTER; parms.valign = VALIGN_CENTER; parms.width = display_get_width(); parms.height = 40; parms.style_id = 1;
@@ -653,16 +655,18 @@ void game_score(){
     rdpq_text_printf(&parms, 4, 0, 130, dictstr("match_s_stats"));
     rdpq_text_printf(&parms, 4, 0, 170, "%i                    %s                     %i", matchinfo.tleft.score,  dictstr("match_s_goals"),  matchinfo.tright.score);
     rdpq_text_printf(&parms, 4, 0, 210, "%i                    %s                     %i", matchinfo.tleft.shots,  dictstr("match_s_shots"),  matchinfo.tright.shots);
-    rdpq_text_printf(&parms, 4, 0, 250, "%i             %s            %i", matchinfo.tleft.shotsontarget,  dictstr("match_s_shotsont"),  matchinfo.tright.shotsontarget);
-    rdpq_text_printf(&parms, 4, 0, 290, "%.0f%%                 %s                 %.0f%%", left_possession,  dictstr("match_s_posession"),  right_possession);
+    rdpq_text_printf(&parms, 4, 0, 250, "%i              %s             %i", matchinfo.tleft.shotsontarget,  dictstr("match_s_shotsont"),  matchinfo.tright.shotsontarget);
+    rdpq_text_printf(&parms, 4, 0, 290, "%.0f%%                %s                %.0f%%", left_possession,  dictstr("match_s_posession"),  right_possession);
     rdpq_textparms_t parms2; parms2.style_id = 2;
     rdpq_text_printf(&parms2, 3, 490, 445, dictstr("match_s_continue")); 
     rdpq_detach_show();
   }
+  rspq_wait();
   sprite_free(button_a);
 }
 
 void game_free(){
+  rspq_wait();
   playball_free();
   for(int i = 0; i < MAXPLAYERS; i++) {carplayer_free(&carplayer[i]);}
 

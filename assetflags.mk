@@ -18,6 +18,6 @@ filesystem/fonts/jp/NikkyouSans-mLKax.font64: 			MKFONT_FLAGS+= --size 38   --ra
 filesystem/textures/%.sprite: MKSPRITE_FLAGS += --dither ORDERED
 filesystem/models/%.sprite:  MKSPRITE_FLAGS += --mipmap BOX
 
-filesystem/music/1.select.wav64:  AUDIOCONV_FLAGS += --wav-compress 3
-filesystem/music/7.theme.wav64:  AUDIOCONV_FLAGS += --wav-compress 3
-filesystem/music/9.congrats.wav64:  AUDIOCONV_FLAGS += --wav-compress 3
+filesystem/music/1_select.wav64:  AUDIOCONV_FLAGS += --wav-compress 3
+filesystem/music/7_theme.wav64:  AUDIOCONV_FLAGS += --wav-compress 3
+filesystem/music/9_congrats.wav64:  AUDIOCONV_FLAGS += --wav-compress 3

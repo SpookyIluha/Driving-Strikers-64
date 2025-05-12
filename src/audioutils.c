@@ -1,9 +1,16 @@
 #include <libdragon.h>
 #include "audioutils.h"
 #include "engine_gamestatus.h"
+#include "ctype.h"
 
-wav64_t bgmusic;
-wav64_t sounds[AUDIO_SOUND_MAXSOUNDS];
+wav64_t bgmusic[64];
+wav64_t sounds[64];
+char bgmusicnames[64][64];
+char soundsnames[64][64];
+
+int musiccount = 0;
+int soundscount = 0;
+
 int sound_channel = 0;
 
 bool bgmusic_playing;
@@ -15,6 +22,52 @@ int transitionstate;
 float transitiontime;
 float transitiontimemax;
 bool loopingmusic;
+
+int audio_prewarm_all_sounds_callback(const char *fn, dir_t *dir, void *data){
+    char nameonly[128] = {0};
+    strcpy(nameonly, strrchr(fn, '/') + 1);
+    *strrchr(nameonly, '.') = '\0';
+    strcpy(soundsnames[soundscount], nameonly);
+    
+    debugf("Found sound %i: %s  | filename %s\n", soundscount, nameonly, fn);
+    wav64_open(&sounds[soundscount], fn);
+
+    soundscount++;
+    return DIR_WALK_CONTINUE;
+}
+
+int audio_prewarm_all_music_callback(const char *fn, dir_t *dir, void *data){
+
+    char nameonly[128] = {0};
+    strcpy(nameonly, strrchr(fn, '/') + 1);
+    *strrchr(nameonly, '.') = '\0';
+    strcpy(bgmusicnames[musiccount], nameonly);
+    debugf("Found music %i: %s  | filename %s\n", musiccount, nameonly, fn);
+    wav64_open(&bgmusic[musiccount], fn);
+
+    musiccount++;
+    return DIR_WALK_CONTINUE;
+}
+
+
+void audio_prewarm_all(){
+    dir_glob("**/*.wav64", "rom:/music/", audio_prewarm_all_music_callback, NULL);
+    dir_glob("**/*.wav64", "rom:/sfx/", audio_prewarm_all_sounds_callback, NULL);
+}
+
+int audio_find_sound(const char* name){
+    int index = 0;
+    while(strcmp(soundsnames[index], name) && index < 64) index++;
+    if(index >= 63) assertf(0, "Sound not found %s", name);
+    return index;
+}
+
+int audio_find_music(const char* name){
+    int index = 0;
+    while(strcmp(bgmusicnames[index], name) && index < 64) index++;
+    if(index >= 63) assertf(0, "Music not found %s", name);
+    return index;
+}
 
 void audioutils_mixer_update(){
     float volume =  gamestatus.state.audio.bgmusic_vol;
@@ -28,14 +81,14 @@ void audioutils_mixer_update(){
                  bgmusic_playing = false;
                 mixer_ch_stop(AUDIO_CHANNEL_MUSIC);
                 rspq_wait();
-                if(bgmusic.st) wav64_close(&bgmusic);
             }
             if( bgmusic_name[0]){
-                char fn[512]; sprintf(fn, "rom:/music/%s.wav64",  bgmusic_name);
-                wav64_open(&bgmusic, fn);
-                wav64_set_loop(&bgmusic,  loopingmusic);
-                wav64_play(&bgmusic, AUDIO_CHANNEL_MUSIC);
-                 bgmusic_playing = true;
+                //char fn[512]; sprintf(fn, "rom:/music/%s.wav64",  bgmusic_name);
+                //wav64_open(&bgmusic, fn);
+                wav64_t* mus = &bgmusic[audio_find_music(bgmusic_name)];
+                wav64_set_loop(mus,  loopingmusic);
+                wav64_play(mus, AUDIO_CHANNEL_MUSIC);
+                bgmusic_playing = true;
             }
         }
         volume *= ( transitiontime /  transitiontimemax);
@@ -52,11 +105,9 @@ void bgm_hardplay(const char* name, bool loop, float transition){
      transitionstate = 0;
      transitiontime = 0;
      transitiontimemax = 1;
-    char fn[512]; sprintf(fn, "rom:/music/%s.wav64", name);
-    if(bgmusic.st) wav64_close(&bgmusic);
-    wav64_open(&bgmusic, fn);
-    wav64_set_loop(&bgmusic,  loopingmusic);
-    wav64_play(&bgmusic, AUDIO_CHANNEL_MUSIC);
+    wav64_t* mus = &bgmusic[audio_find_music(name)];
+    wav64_set_loop(mus,  loop);
+    wav64_play(mus, AUDIO_CHANNEL_MUSIC);
      bgmusic_playing = true;
     strcpy( bgmusic_name, name);
 }
@@ -80,7 +131,6 @@ void bgm_hardstop(){
      bgmusic_name[0] = 0;
     mixer_ch_stop(AUDIO_CHANNEL_MUSIC);
     rspq_wait();
-    if(bgmusic.st) wav64_close(&bgmusic);
 }
 
 void bgm_stop(float transition){
@@ -93,10 +143,9 @@ void bgm_stop(float transition){
 
 void sound_play(const char* name, bool loop){
     sound_stop();
-    char fn[512]; sprintf(fn, "rom:/sfx/%s.wav64", name);
-    wav64_open(&sounds[sound_channel], fn);
-    wav64_set_loop(&sounds[sound_channel], loop);
-    wav64_play(&sounds[sound_channel], AUDIO_CHANNEL_SOUND + sound_channel*2);
+    wav64_t* snd = &sounds[audio_find_sound(name)];
+    wav64_set_loop(snd,  loop);
+    wav64_play(snd, AUDIO_CHANNEL_SOUND + sound_channel*2);
     mixer_ch_set_vol(AUDIO_CHANNEL_SOUND + sound_channel*2,  gamestatus.state.audio.sound_vol,  gamestatus.state.audio.sound_vol);
     sound_channel++;
     if(sound_channel >= AUDIO_SOUND_MAXSOUNDS) sound_channel = 0;
@@ -107,7 +156,6 @@ void sound_play(const char* name, bool loop){
 void sound_stop(){
     if( sound_playing){
         mixer_ch_stop(AUDIO_CHANNEL_SOUND + sound_channel*2);
-        if(sounds[sound_channel].st) wav64_close(&sounds[sound_channel]);
     }
      sound_playing = false;
      sound_name[0] = 0;

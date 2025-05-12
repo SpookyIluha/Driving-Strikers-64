@@ -16,7 +16,7 @@
 
 void setup(){
   //debug_init_isviewer();
-  //debug_init_usblog();
+	//debug_init_usblog();
   wav64_init_compression(3);
 
   dfs_init(DFS_DEFAULT_LOCATION);
@@ -39,6 +39,7 @@ void setup(){
 
   libdragon_logo();
   display_init(RESOLUTION_640x480, DEPTH_16_BPP, is_memory_expanded()? 3 : 2, GAMMA_NONE, FILTERS_DEDITHER);
+  audio_prewarm_all();
 
 #if DEBUG_RDP
     rdpq_debug_start();

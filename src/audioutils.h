@@ -22,6 +22,8 @@ extern char sound_name[SHORTSTR_LENGTH];
 /// @brief Should be called on each game tick for audio to be played (between rdpq_attach and rdpq_detach)
 void audioutils_mixer_update();
 
+void audio_prewarm_all();
+
 /// @brief Play music in the background
 /// @param name fn of the music in the bgm folder
 /// @param loop is the music looped

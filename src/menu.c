@@ -31,7 +31,7 @@ void render_background(){
     } rspq_block_run(background_block);
 
    // rdpq_text_printf(NULL, 1, 30, 30, "^02FPS: %.2f", display_get_fps());
-   // heap_stats_t stats; sys_get_heap_stats(&stats);
+    //heap_stats_t stats; sys_get_heap_stats(&stats);
     //rdpq_text_printf(NULL, 1, 30, 50, "^02MEM: %i total, %i used", stats.total, stats.used);
     rdpq_set_mode_standard();
     rdpq_mode_combiner(RDPQ_COMBINER1((ENV,PRIM,TEX0,TEX0), (0,0,0,TEX0)));
@@ -58,13 +58,13 @@ void menu_credits(){
     rspq_wait();
     float time = 0;
     time = 0;
-    bgm_play("7.theme", true, 1); 
+    bgm_play("7_theme", true, 1); 
     while(time < 2){
         audioutils_mixer_update();
         joypad_poll();
         joypad_buttons_t pressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
         if(pressed.b){
-            bgm_play("1.select", true, 1);
+            bgm_play("1_select", true, 1);
             return;
         }
         rdpq_attach(display_get(), NULL);
@@ -94,7 +94,7 @@ void menu_credits(){
             joypad_poll();
             joypad_buttons_t pressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
             if(pressed.b){
-                bgm_play("1.select", true, 1);
+                bgm_play("1_select", true, 1);
                 return;
             }
             float alpha = 255;
@@ -144,7 +144,7 @@ void menu_credits(){
         rdpq_detach_show();
         time += display_get_delta_time();
     }
-    bgm_play("1.select", true, 1);
+    bgm_play("1_select", true, 1);
 }
 
 void menu_logos(){
@@ -188,7 +188,7 @@ void menu_cover(){
     if(background_block) {rspq_block_free(background_block); background_block = NULL;}
     if(background) {sprite_free(background); background = NULL;}
     background = sprite_load("rom:/textures/logos/cover.sprite");
-    if(bgmusic_name[0] == 0) bgm_play("1.select", true, 0);
+    if(bgmusic_name[0] == 0) bgm_play("1_select", true, 0);
     bool pressed_start = false;
     float logotime = 1;
     float gtime = 0;
@@ -199,7 +199,7 @@ void menu_cover(){
             pressed_start = true;
             sound_play("menu_confirm", false);
             effects_add_rumble(JOYPAD_PORT_1, 0.1f);
-            sound_play("voice/DrivingStrikers", false);
+            sound_play("DrivingStrikers", false);
         }
         if(pressed_start) logotime -= display_get_delta_time();
         gtime += display_get_delta_time();
@@ -331,7 +331,7 @@ void menu_quick_game(){
                 if(maps[selection].unlocked || gamestatus.state.stadium_unlocked){
                     stage_time = 2.0f; if(maps[selection].voicenamefn) sound_play(maps[selection].voicenamefn, false);
                 }
-            } else if(selection_stage == 2 && team_assignment.can_start) {stage_time = 2.0f; sound_play("voice/StartYourEngines", false);}
+            } else if(selection_stage == 2 && team_assignment.can_start) {stage_time = 2.0f; sound_play("StartYourEngines", false);}
         }        // back from the menu if B pressed
         if(pressed.b) {
             effects_add_rumble(JOYPAD_PORT_1, 0.1f);
@@ -427,7 +427,7 @@ void menu_quick_game(){
         display_close();
         display_init(RESOLUTION_640x480, DEPTH_16_BPP, is_memory_expanded()? 3 : 2, GAMMA_NONE, FILTERS_DEDITHER);
         background = sprite_load("rom:/textures/ui/menu_bg.sprite");
-        bgm_play("1.select", true, 1);
+        bgm_play("1_select", true, 1);
     }
 }
 
@@ -651,7 +651,7 @@ void menu_league(){
                 display_close();
                 display_init(RESOLUTION_640x480, DEPTH_16_BPP,is_memory_expanded()? 3 : 2, GAMMA_NONE, FILTERS_DEDITHER);
                 background = sprite_load("rom:/textures/ui/menu_bg.sprite");
-                bgm_play("1.select", true, 1);
+                bgm_play("1_select", true, 1);
 
                 teams_league[0].wins += matchinfo.tleft.score > matchinfo.tright.score? 1 : 0;
                 teams_league[0].draws += matchinfo.tleft.score == matchinfo.tright.score? 1 : 0;
@@ -715,8 +715,8 @@ void menu_league(){
                     engine_eeprom_save_manual();
                     engine_eeprom_save_persistent();
                     float offset = 400;
-                    sound_play("voice/Congratulations", false);
-                    bgm_play("9.congrats", true, 1);
+                    sound_play("Congratulations", false);
+                    bgm_play("9_congrats", true, 1);
                     bool pressed_start = false;
                     float logotime = 1;
                     float gtime = 0;
@@ -863,7 +863,7 @@ void menu_main(){
     button_a = sprite_load("rom:/textures/ui/button_a.rgba32.sprite");
     button_b = sprite_load("rom:/textures/ui/button_b.rgba32.sprite");
 
-    if(bgmusic_name[0] == 0) bgm_play("1.select", true, 0);
+    if(bgmusic_name[0] == 0) bgm_play("1_select", true, 0);
     int selection = 0;
     float offset = 400;
 
