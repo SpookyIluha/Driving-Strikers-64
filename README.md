@@ -8,7 +8,7 @@ This is a 6-th gen game, that runs well on a 5-th gen system with minimal compro
 
 This game uses advanced features, not previously seen in any N64 official title, that is a result of extensive research and optimization.
 
-Expansion Pak is ___NOT___ needed to play this game.
+Expansion Pak is ___NOT___ needed, but recommended to play this game.
 
 # Controls:
 - Stick: move around
