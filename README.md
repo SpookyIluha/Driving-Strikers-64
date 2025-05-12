@@ -22,6 +22,7 @@ Expansion Pak is ___NOT___ needed, but recommended to play this game.
 - Full 480i TrueColor graphics at high framerates of at least 30+ FPS ___without the expansion pak___, extremely rare in N64 titles
 - Quality artwork and levels with antialiasing and high-res fullcolor mipmapped, bumpmapped textures
 - HDR rendering and bright lighting with autoexposure, never before seen on any N64 title
+- Rumble Pak and EEPROM save support
 
 # Build the game
 - Install [Libdragon SDK](https://github.com/DragonMinded/libdragon/tree/unstable) (unstable)
