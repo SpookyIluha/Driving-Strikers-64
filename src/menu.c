@@ -58,7 +58,7 @@ void menu_credits(){
     rspq_wait();
     float time = 0;
     time = 0;
-    bgm_play("7.theme", true, 1);
+    bgm_play("7.theme", true, 1); 
     while(time < 2){
         audioutils_mixer_update();
         joypad_poll();
@@ -425,7 +425,7 @@ void menu_quick_game(){
         game_start(map_selected);
         rspq_wait();
         display_close();
-        display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_DEDITHER);
+        display_init(RESOLUTION_640x480, DEPTH_16_BPP, is_memory_expanded()? 3 : 2, GAMMA_NONE, FILTERS_DEDITHER);
         background = sprite_load("rom:/textures/ui/menu_bg.sprite");
         bgm_play("1.select", true, 1);
     }
@@ -649,7 +649,7 @@ void menu_league(){
                 game_start(&maps[curmap]);
                 rspq_wait();
                 display_close();
-                display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_DEDITHER);
+                display_init(RESOLUTION_640x480, DEPTH_16_BPP,is_memory_expanded()? 3 : 2, GAMMA_NONE, FILTERS_DEDITHER);
                 background = sprite_load("rom:/textures/ui/menu_bg.sprite");
                 bgm_play("1.select", true, 1);
 
@@ -679,6 +679,9 @@ void menu_league(){
 
                     if(compteam == curteamagainst_lli) compteam++;
 
+                    if(teams_league[compteam].points >= 5 && info.tleft.score > info.tright.score) 
+                        iswap(&info.tleft.score, &info.tright.score); // classic trollface moment
+
                     teams_league[compteam].wins += info.tleft.score > info.tright.score? 1 : 0;
                     teams_league[compteam].draws += info.tleft.score == info.tright.score? 1 : 0;
                     teams_league[compteam].losts += info.tleft.score < info.tright.score? 1 : 0;
@@ -688,6 +691,8 @@ void menu_league(){
                     teams_league[compteam].plays += 1;
 
                     compteam++; if(compteam == curteamagainst_lli) compteam++;
+
+                    if(teams_league[compteam].points > 6) info.tleft.score = info.tright.score; // trollface moment no 2
 
                     teams_league[compteam].wins += info.tleft.score < info.tright.score? 1 : 0;
                     teams_league[compteam].draws += info.tleft.score == info.tright.score? 1 : 0;
