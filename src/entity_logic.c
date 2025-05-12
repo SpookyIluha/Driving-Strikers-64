@@ -399,7 +399,7 @@ uint32_t playercolors[4] = {
   }
 
   void carplayer_draw_shadow(carplayer_t* car){
-    t3d_matrix_set(&car->shadowmodelMatFP[(frame) % 3], true); 
+    t3d_matrix_set(&car->shadowmodelMatFP[(frame) % 5], true); 
     if(!car->blockshadow){
       rspq_block_begin();
       t3d_model_draw(car->shadowmodel);
