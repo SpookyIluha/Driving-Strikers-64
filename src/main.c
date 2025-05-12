@@ -38,7 +38,7 @@ void setup(){
   register_VI_handler((void(*)())rand);
 
   libdragon_logo();
-  display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_DEDITHER);
+  display_init(RESOLUTION_640x480, DEPTH_16_BPP, is_memory_expanded()? 3 : 2, GAMMA_NONE, FILTERS_DEDITHER);
 
 #if DEBUG_RDP
     rdpq_debug_start();
