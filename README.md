@@ -15,7 +15,7 @@ Expansion Pak is ___NOT___ needed to play this game.
 - Multilanguage support with 8 different languages using .ini configs and [inih](https://github.com/benhoyt/inih) open-source library
 - Stereo CD quality music with voiced audio on a 16MB cartridge
 - Full 480i TrueColor graphics at high framerates of at least 30+ FPS ___without the expansion pak___, extremely rare in N64 titles
-- Quality artwork and levels with antialiasing and high-res fullcolor mipmapped textures
+- Quality artwork and levels with antialiasing and high-res fullcolor mipmapped, bumpmapped textures
 - HDR rendering and bright lighting with autoexposure, never before seen on any N64 title
 
 # Build the game
