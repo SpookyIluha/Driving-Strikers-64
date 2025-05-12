@@ -15,9 +15,8 @@
 #include "engine_locale.h"
 
 void setup(){
-  debug_init_isviewer();
-	debug_init_usblog();
-	asset_init_compression(2);
+  //debug_init_isviewer();
+	//debug_init_usblog();
   wav64_init_compression(3);
 
   dfs_init(DFS_DEFAULT_LOCATION);
