@@ -649,14 +649,10 @@ void game_score(){
     float left_possession = (matchinfo.tleft.posession / (matchinfo.tleft.posession + matchinfo.tright.posession)) * 100;
     float right_possession = (matchinfo.tright.posession / (matchinfo.tleft.posession + matchinfo.tright.posession)) * 100;
     rdpq_text_printf(&parms, 4, 0, 130, dictstr("match_s_stats"));
-    rdpq_text_printf(&parms, 4, -200, 170, "%i", matchinfo.tleft.score); rdpq_text_printf(&parms, 4, 200, 170, "%i", matchinfo.tright.score);
-    rdpq_text_printf(&parms, 4, 0, 170, "%s", dictstr("match_s_goals"));
-    rdpq_text_printf(&parms, 4, -200, 210, "%i", matchinfo.tleft.shots); rdpq_text_printf(&parms, 4, 200, 210, "%i", matchinfo.tright.shots);
-    rdpq_text_printf(&parms, 4, 0, 210, "%s",dictstr("match_s_shots"));
-    rdpq_text_printf(&parms, 4, -200, 250, "%i", matchinfo.tleft.shotsontarget); rdpq_text_printf(&parms, 4, 200, 250, "%i", matchinfo.tright.shotsontarget);
-    rdpq_text_printf(&parms, 4, 0, 250, "%s", dictstr("match_s_shotsont"));
-    rdpq_text_printf(&parms, 4, -200, 290, "%.0f%% ", left_possession); rdpq_text_printf(&parms, 4, 200, 290, "%.0f%% ", right_possession);
-    rdpq_text_printf(&parms, 4, 0, 290, "%s", dictstr("match_s_posession"));
+    rdpq_text_printf(&parms, 4, 0, 170, "%i                    %s                     %i", matchinfo.tleft.score,  dictstr("match_s_goals"),  matchinfo.tright.score);
+    rdpq_text_printf(&parms, 4, 0, 210, "%i                    %s                     %i", matchinfo.tleft.shots,  dictstr("match_s_shots"),  matchinfo.tright.shots);
+    rdpq_text_printf(&parms, 4, 0, 250, "%i             %s            %i", matchinfo.tleft.shotsontarget,  dictstr("match_s_shotsont"),  matchinfo.tright.shotsontarget);
+    rdpq_text_printf(&parms, 4, 0, 290, "%.0f%%                 %s                 %.0f%%", left_possession,  dictstr("match_s_posession"),  right_possession);
     rdpq_textparms_t parms2; parms2.style_id = 2;
     rdpq_text_printf(&parms2, 3, 490, 445, dictstr("match_s_continue")); 
     rdpq_detach_show();
