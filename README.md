@@ -8,11 +8,13 @@ This is a 6-th gen game, that runs well on a 5-th gen system with minimal compro
 
 This game uses advanced features, not previously seen in any N64 official title, that is a result of extensive research and optimization.
 
+Expansion Pak is ___NOT___ needed to play this game.
+
 # Features:
 - Physics-driven gameplay using the [Tiny Physics Engine](https://github.com/ESPboy-edu/ESPboy_tinyphysicsengine) open-source library
 - Multilanguage support with 8 different languages using .ini configs and [inih](https://github.com/benhoyt/inih) open-source library
 - Stereo CD quality music with voiced audio on a 16MB cartridge
-- Full 480i TrueColor graphics at high framerates of at least 30+ FPS, extremely rare in N64 titles
+- Full 480i TrueColor graphics at high framerates of at least 30+ FPS ___without the expansion pak___, extremely rare in N64 titles
 - Quality artwork and levels with antialiasing and high-res fullcolor mipmapped textures
 - HDR rendering and bright lighting with autoexposure, never before seen on any N64 title
 
