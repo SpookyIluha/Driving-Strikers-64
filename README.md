@@ -10,6 +10,11 @@ This game uses advanced features, not previously seen in any N64 official title,
 
 Expansion Pak is ___NOT___ needed to play this game.
 
+# Controls:
+- Stick: move around
+- Z trigger: nitro
+- L/R triggers: jump
+
 # Features:
 - Physics-driven gameplay using the [Tiny Physics Engine](https://github.com/ESPboy-edu/ESPboy_tinyphysicsengine) open-source library
 - Multilanguage support with 8 different languages using .ini configs and [inih](https://github.com/benhoyt/inih) open-source library
