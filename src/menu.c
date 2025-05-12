@@ -214,7 +214,7 @@ void menu_cover(){
         rdpq_mode_combiner(RDPQ_COMBINER_FLAT);
         rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
         rdpq_mode_dithering(DITHER_BAYER_INVBAYER);
-        rdpq_set_prim_color(RGBA32(0,0,0, logotime * 128));
+        rdpq_set_prim_color(RGBA32(0,0,0, logotime * 120 + 10));
         rdpq_fill_rectangle(0, 350, display_get_width(), 430);
 
         rdpq_textparms_t parmstext = {0}; parmstext.valign = VALIGN_CENTER; parmstext.align = ALIGN_CENTER; parmstext.width = display_get_width(); parmstext.height = 80; parmstext.style_id = 1;
@@ -567,6 +567,7 @@ void menu_league(){
 
             curteamagainst = iwrap(curteamagainst + 1, 0, 7);
             curteamagainst_lli++;
+            rspq_block_t* tableblock = NULL;
             while(true){
                 offset = fm_lerp(offset, 0, 0.25f);
                 joypad_poll(); 
@@ -574,26 +575,13 @@ void menu_league(){
 
                 joypad_buttons_t pressed = {0};
                 pressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
-                if(pressed.b && i < 7) return;
+                if(pressed.b && i < 7) {rspq_wait(); rspq_block_free(tableblock); return;}
                 if(pressed.a && i < 7) {sound_play(teams[curteamagainst].voicenamefn, false); break;}
                 if(pressed.b && i >= 7) break;
 
                 rdpq_attach(display_get(), NULL);
                 // background drawing
                 render_background();
-
-                rdpq_mode_combiner(RDPQ_COMBINER_FLAT);
-                rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
-                rdpq_set_prim_color(RGBA32(0,0,0,128));
-                rdpq_fill_rectangle(60 + offset, 140, 600 + offset, 400);
-                rdpq_set_prim_color(RGBA32(255,255,0,128));
-                for(int i = 0; i < 8; i++)
-                    if(teams_league_sorted[i].teamindex == teams_selected_index)
-                        rdpq_fill_rectangle(60 + offset, 200 + 25*i, 600 + offset, 225 + 25*i);
-
-                rdpq_mode_combiner(RDPQ_COMBINER_TEX);
-                if(i < 7) rdpq_sprite_blit(button_a, 360 - offset, 420, NULL);
-                rdpq_sprite_blit(button_b, (i < 7? 500 : 460) - offset, 420, NULL);
 
                 rdpq_textparms_t parmstext = {0}; parmstext.valign = VALIGN_CENTER; parmstext.align = ALIGN_CENTER; parmstext.width = display_get_width(); parmstext.height = 80; parmstext.style_id = 1;
                 rdpq_text_printf(&parmstext, 2, 0, 40, dictstr("mm_league"));
@@ -604,30 +592,49 @@ void menu_league(){
                 rdpq_textparms_t parms2; parms2.style_id = 2;
                 rdpq_text_printf(&parms2, 3, (i < 7? 540 : 500) - offset, 445, i < 7? dictstr("mm_back") : dictstr("match_s_continue")); 
                 if(i < 7) rdpq_text_printf(&parms2, 3, 400 - offset, 445, dictstr("mm_play")); 
+                
+                rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
+                rdpq_mode_combiner(RDPQ_COMBINER_TEX);
+                if(i < 7) rdpq_sprite_blit(button_a, 360 - offset, 420, NULL);
+                rdpq_sprite_blit(button_b, (i < 7? 500 : 460) - offset, 420, NULL);
 
-                parmstext.valign = VALIGN_CENTER; parmstext.align = ALIGN_LEFT; parmstext.width = display_get_width(); parmstext.height = 40; parmstext.style_id = 1;
-                const char* tablenames[7] = {"P", "W", "D", "L", "GF", "GA", "PTS"};
-                for(int i = 0; i < 7; i++){
-                    parmstext.style_id = 5;
-                    rdpq_text_printf(&parmstext, 3, 330 + i*35 + offset, 150, tablenames[i]);
-                }
-                for(int i = 0; i < 8; i++){
-                    parmstext.style_id = 2;
-                    rdpq_text_printf(&parmstext, 3, 80 + offset,  195 + 25*i, "%s", teams_league_sorted[i].team->teamname);
-                    rdpq_text_printf(&parmstext, 3, 300 + 30 + offset, 195 + 25*i, "%i", teams_league_sorted[i].plays);
-                    rdpq_text_printf(&parmstext, 3, 335 + 30 + offset, 195 + 25*i, "%i", teams_league_sorted[i].wins);
-                    rdpq_text_printf(&parmstext, 3, 370 + 30 + offset, 195 + 25*i, "%i", teams_league_sorted[i].draws);
-                    rdpq_text_printf(&parmstext, 3, 405 + 30 + offset, 195 + 25*i, "%i", teams_league_sorted[i].losts);
-                    rdpq_text_printf(&parmstext, 3, 440 + 30 + offset, 195 + 25*i, "%i", teams_league_sorted[i].goals_for);
-                    rdpq_text_printf(&parmstext, 3, 475 + 30 + offset, 195 + 25*i, "%i", teams_league_sorted[i].goals_against);
-                    parmstext.style_id = 5;
-                    rdpq_text_printf(&parmstext, 3, 510 + 30 + offset, 195 + 25*i, "%i", teams_league_sorted[i].points);
-                }
+                if(!tableblock){
+                    rspq_block_begin();
+                    rdpq_mode_combiner(RDPQ_COMBINER_FLAT);
+                    rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
+                    rdpq_set_prim_color(RGBA32(0,0,0,128));
+                    rdpq_fill_rectangle(60 , 140, 600 , 400);
+                    rdpq_set_prim_color(RGBA32(255,255,0,128));
+                    for(int i = 0; i < 8; i++)
+                        if(teams_league_sorted[i].teamindex == teams_selected_index)
+                            rdpq_fill_rectangle(60 , 200 + 25*i, 600 , 225 + 25*i);
 
-                parmstext.valign = VALIGN_CENTER; parmstext.align = ALIGN_CENTER; parmstext.width = display_get_width(); parmstext.height = 80; parmstext.style_id = 1;
+                    parmstext.valign = VALIGN_CENTER; parmstext.align = ALIGN_LEFT; parmstext.width = display_get_width(); parmstext.height = 40; parmstext.style_id = 1;
+                    const char* tablenames[7] = {"P", "W", "D", "L", "GF", "GA", "PTS"};
+                    for(int i = 0; i < 7; i++){
+                        parmstext.style_id = 5;
+                        rdpq_text_printf(&parmstext, 3, 330 + i*35, 150, tablenames[i]);
+                    }
+                    for(int i = 0; i < 8; i++){
+                        parmstext.style_id = 2;
+                        rdpq_text_printf(&parmstext, 3, 80 ,  195 + 25*i, "%s", teams_league_sorted[i].team->teamname);
+                        rdpq_text_printf(&parmstext, 3, 300 + 30 , 195 + 25*i, "%i", teams_league_sorted[i].plays);
+                        rdpq_text_printf(&parmstext, 3, 335 + 30 , 195 + 25*i, "%i", teams_league_sorted[i].wins);
+                        rdpq_text_printf(&parmstext, 3, 370 + 30 , 195 + 25*i, "%i", teams_league_sorted[i].draws);
+                        rdpq_text_printf(&parmstext, 3, 405 + 30 , 195 + 25*i, "%i", teams_league_sorted[i].losts);
+                        rdpq_text_printf(&parmstext, 3, 440 + 30 , 195 + 25*i, "%i", teams_league_sorted[i].goals_for);
+                        rdpq_text_printf(&parmstext, 3, 475 + 30 , 195 + 25*i, "%i", teams_league_sorted[i].goals_against);
+                        parmstext.style_id = 5;
+                        rdpq_text_printf(&parmstext, 3, 510 + 30 , 195 + 25*i, "%i", teams_league_sorted[i].points);
+                    }
+                    tableblock = rspq_block_end();
+                } rspq_block_run(tableblock);
 
                 rdpq_detach_show();
-            }if(i < 7){
+            }
+            rspq_wait();
+            rspq_block_free(tableblock);
+            if(i < 7){
                 if(background_block) {rspq_block_free(background_block); background_block = NULL;}
                 if(background) {sprite_free(background); background = NULL;}
                 matchinfo_init();
@@ -653,7 +660,6 @@ void menu_league(){
                 teams_league[0].goals_against += matchinfo.tright.score;
                 teams_league[0].points += matchinfo.tleft.score > matchinfo.tright.score? 2 : (matchinfo.tleft.score == matchinfo.tright.score? 1 : 0);
                 teams_league[0].plays += 1;
-                teams_league[0].points += 2;
 
                 teams_league[i + 1].wins += matchinfo.tleft.score < matchinfo.tright.score? 1 : 0;
                 teams_league[i + 1].draws += matchinfo.tleft.score == matchinfo.tright.score? 1 : 0;
@@ -663,7 +669,7 @@ void menu_league(){
                 teams_league[i + 1].points += matchinfo.tleft.score < matchinfo.tright.score? 2 : (matchinfo.tleft.score == matchinfo.tright.score? 1 : 0);
                 teams_league[i + 1].plays += 1;
 
-                //if(matchinfo.exited) {teams_league[0].points = 0; i = 6;}
+                if(matchinfo.exited) {teams_league[0].points = 0; i = 6;}
             }if(i < 7){
                 int compteam = 1;
                 for(int i = 0; i < 3; i++){ // add random scores to the rest of the teams
