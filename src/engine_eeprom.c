@@ -4,6 +4,8 @@
 #include "audioutils.h"
 #include "engine_eeprom.h"
 
+bool eeprom_disabled = false;
+
 void print_eeprom_error(int result){
     switch ( result )
     {
@@ -46,17 +48,40 @@ void engine_eeprom_init(){
         debugf( "EEPROM Detected: 4 Kibit (16 blocks)\n" );
         debugf( "Initializing EEPROM Filesystem...\n" );
         result = eepfs_init(eeprom_16k_files, 2);
-    } else assertf(0, "EEPROM wrong format, expected 4KB. Please check your flashcart/emulator settings.");
-    assertf(result == EEPFS_ESUCCESS, "EEPROM not found: 4 Kibit (16 blocks)\nPlease check your flashcart/emulator settings.");
+    } else {debugf("EEPROM wrong format, expected 4KB. Please check your flashcart/emulator settings. You won't be able to save your game!"); eeprom_disabled = true;}
+    if(result != EEPFS_ESUCCESS) {debugf("EEPROM not found: 4 Kibit (16 blocks)\nPlease check your flashcart/emulator settings. You won't be able to save your game!"); eeprom_disabled = true;}
 
-    print_eeprom_error(result);
-    joypad_poll(); auto held = joypad_get_buttons_held(JOYPAD_PORT_1);
-    if ( !eepfs_verify_signature() || (held.l && held.r) )
-    {
-        /* If not, erase it and start from scratch */
-        debugf( "Filesystem signature is invalid!\n" );
-        debugf( "Wiping EEPROM...\n" );
-        eepfs_wipe();
+    if(eeprom_disabled){
+        console_init();
+        console_set_render_mode(RENDER_MANUAL);
+        bool pressed_a = false;
+        float time = 0;
+        while(!pressed_a && time < 8){
+            joypad_poll();
+            joypad_buttons_t pressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
+            if(pressed.a) pressed_a = true;
+
+            console_clear();
+
+            if(result != EEPFS_ESUCCESS) {printf("\n\n\nEEPROM not found: 4 Kibit (16 blocks)\nPlease check your flashcart/emulator settings. You won't be able to save your game!\n\nPress [A] to continue.");}
+            else {printf("\n\n\nEEPROM wrong format, expected 4KB. Please check your flashcart/emulator settings. You won't be able to save your game! \n\nPress [A] to continue.");}
+            console_render();
+            time += 0.02f;
+        }
+        rspq_wait();
+        console_close();
+    }
+
+    if(eeprom_type == EEPROM_4K && result == EEPFS_ESUCCESS){
+        print_eeprom_error(result);
+        joypad_poll(); auto held = joypad_get_buttons_held(JOYPAD_PORT_1);
+        if ( !eepfs_verify_signature() || (held.l && held.r) )
+        {
+            /* If not, erase it and start from scratch */
+            debugf( "Filesystem signature is invalid!\n" );
+            debugf( "Wiping EEPROM...\n" );
+            eepfs_wipe();
+        }
     }
 }
 
@@ -72,10 +97,13 @@ void engine_eeprom_delete_saves(){
 }
 
 void engine_eeprom_delete_persistent(){
+    if(eeprom_disabled) return;
+
     eepfs_wipe();
 }
 
 bool engine_eeprom_save_manual(){
+    if(eeprom_disabled) return false;
     gamestatus.state_persistent.manualsaved = true;
     gamestatus.state_persistent.lastsavetype = SAVE_MANUALSAVE;
     engine_eeprom_save_persistent();
@@ -89,6 +117,7 @@ bool engine_eeprom_save_manual(){
 }
 
 bool engine_eeprom_load_manual(){
+    if(eeprom_disabled) return false;
     debugf( "Reading '%s'\n", "/manualsave.sv" );
     
     const int result = eepfs_read("/manualsave.sv", &gamestatus.state, (size_t)(sizeof(gamestatus.state)));
@@ -102,6 +131,7 @@ bool engine_eeprom_load_manual(){
 }
 
 bool engine_eeprom_save_persistent(){
+    if(eeprom_disabled) return false;
     debugf( "Writing '%s'\n", "/persistent.sv" );
     
     const int result = eepfs_write("/persistent.sv", &gamestatus.state_persistent, (size_t)(sizeof(gamestatus.state_persistent)));
@@ -114,6 +144,7 @@ bool engine_eeprom_save_persistent(){
 }
 
 bool engine_eeprom_load_persistent(){
+    if(eeprom_disabled) return false;
     debugf( "Reading '%s'\n", "/persistent.sv" );
     
     const int result = eepfs_read("/persistent.sv", &gamestatus.state_persistent, (size_t)(sizeof(gamestatus.state_persistent)));
