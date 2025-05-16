@@ -3,10 +3,10 @@
 #include "engine_gamestatus.h"
 #include "ctype.h"
 
-wav64_t bgmusic[64];
-wav64_t sounds[64];
-char bgmusicnames[64][64];
-char soundsnames[64][64];
+wav64_t bgmusic[12];
+wav64_t sounds[32];
+char bgmusicnames[64][12];
+char soundsnames[64][32];
 
 int musiccount = 0;
 int soundscount = 0;
@@ -57,15 +57,15 @@ void audio_prewarm_all(){
 
 int audio_find_sound(const char* name){
     int index = 0;
-    while(strcmp(soundsnames[index], name) && index < 64) index++;
-    if(index >= 63) assertf(0, "Sound not found %s", name);
+    while(strcmp(soundsnames[index], name) && index < 32) index++;
+    if(index >= 32) assertf(0, "Sound not found %s", name);
     return index;
 }
 
 int audio_find_music(const char* name){
     int index = 0;
-    while(strcmp(bgmusicnames[index], name) && index < 64) index++;
-    if(index >= 63) assertf(0, "Music not found %s", name);
+    while(strcmp(bgmusicnames[index], name) && index < 12) index++;
+    if(index >= 12) assertf(0, "Music not found %s", name);
     return index;
 }
 

@@ -21,7 +21,7 @@ void setup(){
 
   dfs_init(DFS_DEFAULT_LOCATION);
   joypad_init();
-  audio_init(48000, 4);
+  audio_init(48000, 6);
   mixer_init(10);
   vi_init();
 
@@ -37,8 +37,18 @@ void setup(){
   srand(getentropy32());
   register_VI_handler((void(*)())rand);
 
+  effects_rumble_stop();
+
   libdragon_logo();
-  display_init(RESOLUTION_640x480, DEPTH_16_BPP, is_memory_expanded()? 3 : 2, GAMMA_NONE, FILTERS_DEDITHER);
+  effects_rumble_stop();
+  if(is_memory_expanded()){
+      display_init((resolution_t){.width = 640, .height = 480, .interlaced = INTERLACE_RDP}, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DEDITHER);
+      if(get_tv_type() == TV_PAL) {
+          vi_set_borders((vi_borders_t){.up = 48, .down = 48});
+          vi_set_yscale_factor(2.0f);
+      }
+  }
+  else display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_DEDITHER);
   audio_prewarm_all();
 
 #if DEBUG_RDP

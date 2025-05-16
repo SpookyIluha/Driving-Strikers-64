@@ -88,9 +88,9 @@ void libdragon_logo()
         if (angle1 > 1.0f) {
             // Initially, also scissor horizontally, 
             // so that the head tail is not visible on the right.
-            rdpq_set_scissor(0, 0, X0+300, Y0+240);    
+            rdpq_set_scissor(0, 0, X0+300, Y0+240, 0, 0);    
         } else {
-            rdpq_set_scissor(0, 0, 640, Y0+240);
+            rdpq_set_scissor(0, 0, 640, Y0+240, 0, 0);
         }
 
         // Draw dragon head
@@ -105,7 +105,7 @@ void libdragon_logo()
         });
 
         // Restore scissor to standard
-        rdpq_set_scissor(0, 0, 640, 480);
+        rdpq_set_scissor(0, 0, 640, 480, 0, 0);
 
         // Draw a black rectangle with alpha gradient, to cover the head tail
         rdpq_mode_combiner(RDPQ_COMBINER_SHADE);

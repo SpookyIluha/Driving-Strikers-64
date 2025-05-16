@@ -111,7 +111,7 @@ bool engine_eeprom_save_manual(){
     const int result = eepfs_write("/manualsave.sv", &gamestatus.state, (size_t)(sizeof(gamestatus.state)));
     if(result != EEPFS_ESUCCESS || gamestatus.state.magicnumber != STATE_MAGIC_NUMBER) {
             print_eeprom_error(result);
-            assertf(0, "eeprom file write unsuccessful: %s\n", gamestatus.state.magicnumber != STATE_MAGIC_NUMBER? "MAGIC number mismatch" : "eeprom error");
+            debugf("eeprom file write unsuccessful: %s\n", gamestatus.state.magicnumber != STATE_MAGIC_NUMBER? "MAGIC number mismatch" : "eeprom error");
         }
     return result == EEPFS_ESUCCESS;
 }

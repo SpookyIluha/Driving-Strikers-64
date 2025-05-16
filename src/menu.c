@@ -30,7 +30,7 @@ void render_background(){
         background_block = rspq_block_end();
     } rspq_block_run(background_block);
 
-   // rdpq_text_printf(NULL, 1, 30, 30, "^02FPS: %.2f", display_get_fps());
+    //rdpq_text_printf(NULL, 3, 50, 50, "^02FPS: %.2f", display_get_fps());
     //heap_stats_t stats; sys_get_heap_stats(&stats);
     //rdpq_text_printf(NULL, 1, 30, 50, "^02MEM: %i total, %i used", stats.total, stats.used);
     rdpq_set_mode_standard();
@@ -54,6 +54,49 @@ void render_sprite(sprite_t* sprite, rspq_block_t** block, float x, float y){
     } rspq_block_run(*block);
 }
 
+void eeprom_error_screen(){
+    float errtime = 5; bool pressed_a = false; float offset = 400;
+    while(errtime > 0 && !pressed_a){
+        errtime -= display_get_delta_time();
+        offset = fm_lerp(offset,0,0.25f);
+        joypad_poll();
+        joypad_buttons_t pressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
+            if(pressed.a) {
+                pressed_a = true;
+                sound_play("menu_confirm", false);
+                effects_add_rumble(JOYPAD_PORT_1, 0.1f);
+            }
+
+        audioutils_mixer_update();
+        effects_update();
+
+        rdpq_attach(display_get(), NULL);
+        rdpq_set_scissor(0,0,display_get_width(),display_get_width(), display_get_rdpinterlace(), display_get_rdpfield());
+        render_background();
+
+        rdpq_set_mode_standard();
+        rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
+                        
+        rdpq_mode_combiner(RDPQ_COMBINER_TEX);
+        rdpq_sprite_blit(button_a, 460 - offset, 420, NULL);
+
+        rdpq_textparms_t parmstext = {0};
+
+        parmstext.valign = VALIGN_CENTER; parmstext.align = ALIGN_CENTER; parmstext.width = display_get_width(); parmstext.height = 80; parmstext.style_id = 1;
+                        // team selection description
+        rdpq_fontstyle_t style; style.color = RGBA32(255,0,0,255);
+        rdpq_font_style(fonts[2], 5, &style);
+
+        rdpq_textparms_t parms2; parms2.style_id = 2;
+        rdpq_text_printf(&parms2, 3, 500 - offset, 445, dictstr("match_s_continue")); 
+
+        parmstext.valign = VALIGN_CENTER; parmstext.align = ALIGN_CENTER; parmstext.width = display_get_width(); parmstext.height = 350; parmstext.style_id = 1;
+        rdpq_text_printf(&parmstext, 3, 0 + offset, 0, "%s", dictstr("eeprom_error_text"));
+
+        rdpq_detach_show();
+    }
+}
+
 void menu_credits(){
     rspq_wait();
     float time = 0;
@@ -68,6 +111,7 @@ void menu_credits(){
             return;
         }
         rdpq_attach(display_get(), NULL);
+        rdpq_set_scissor(0,0,640,480, display_get_rdpinterlace(), display_get_rdpfield());
         render_background();
         rdpq_set_mode_standard();
         rdpq_mode_combiner(RDPQ_COMBINER_TEX);
@@ -101,6 +145,7 @@ void menu_credits(){
             if(time < 1) alpha = time * 255;
             if(time > 2.5f) alpha = (4.5f - time) * 127;
             rdpq_attach(display_get(), NULL);
+            rdpq_set_scissor(0,0,640,480, display_get_rdpinterlace(), display_get_rdpfield());
             render_background();
             rdpq_set_mode_standard();
             rdpq_mode_combiner(RDPQ_COMBINER_TEX);
@@ -133,6 +178,7 @@ void menu_credits(){
             pressed_b = true;
         }
         rdpq_attach(display_get(), NULL);
+        rdpq_set_scissor(0,0,640,480, display_get_rdpinterlace(), display_get_rdpfield());
         render_background();
         rdpq_set_mode_standard();
         rdpq_mode_combiner(RDPQ_COMBINER_TEX);
@@ -160,6 +206,7 @@ void menu_logos(){
         while(logotime < 4){
             audioutils_mixer_update();
             rdpq_attach(display_get(), NULL);
+            rdpq_set_scissor(0,0,640,480, display_get_rdpinterlace(), display_get_rdpfield());
             float modulate = logotime < 1? logotime * 250 : 250;
             if(logotime > 3.1f) modulate = (4.1f - logotime) * 250;
             rdpq_set_prim_color(RGBA32(modulate,modulate,modulate,255));
@@ -176,6 +223,7 @@ void menu_logos(){
             logotime += display_get_delta_time();
         }
         rdpq_attach(display_get(), NULL);
+        rdpq_set_scissor(0,0,640,480, display_get_rdpinterlace(), display_get_rdpfield());
         rdpq_clear(RGBA32(0,0,0,0));
         rdpq_detach_show();
         rspq_wait();
@@ -185,6 +233,7 @@ void menu_logos(){
 }
 
 void menu_cover(){
+    rspq_wait();
     if(background_block) {rspq_block_free(background_block); background_block = NULL;}
     if(background) {sprite_free(background); background = NULL;}
     background = sprite_load("rom:/textures/logos/cover.sprite");
@@ -204,10 +253,41 @@ void menu_cover(){
         if(pressed_start) logotime -= display_get_delta_time();
         gtime += display_get_delta_time();
 
+        if(gtime > 15){
+            rspq_wait();
+            if(background_block) {rspq_block_free(background_block); background_block = NULL;}
+            if(background) {sprite_free(background); background = NULL;}
+            matchinfo_init();
+            int controllers[4] = {-1,-1,-1,-1};
+            int teamindex = randm(8);
+            teaminfo_init_controllers(controllers);
+            teaminfo_init(teamindex, TEAM_LEFT);
+            teaminfo_init((teamindex + 1) % 8, TEAM_RIGHT);
+            rspq_wait();
+            if(!is_memory_expanded()){
+                display_close();
+                display_init((resolution_t){.width = 640, .height = 480, .interlaced = INTERLACE_RDP}, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DEDITHER);
+                if(get_tv_type() == TV_PAL) {
+                    vi_set_borders((vi_borders_t){.up = 48, .down = 48});
+                    vi_set_yscale_factor(2.0f);
+                }
+            }
+            game_start_demo(&maps[randm(4)]);
+            rspq_wait();
+            if(!is_memory_expanded()){
+                display_close();
+                display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_DEDITHER);
+            }
+            background = sprite_load("rom:/textures/logos/cover.sprite");
+            bgm_play("1_select", true, 1);
+            gtime = 0;
+        }
+
         audioutils_mixer_update();
         effects_update();
 
         rdpq_attach(display_get(), NULL);
+        rdpq_set_scissor(0,0,640,480, display_get_rdpinterlace(), display_get_rdpfield());
         render_background();
 
         rdpq_set_mode_standard();
@@ -231,6 +311,7 @@ void wait_sec_audio(float s){
         s -= display_get_delta_time();
         audioutils_mixer_update();
         rdpq_attach(display_get(), NULL);
+        rdpq_set_scissor(0,0,640,480, display_get_rdpinterlace(), display_get_rdpfield());
         rdpq_detach_show();
     }
 }
@@ -340,6 +421,7 @@ void menu_quick_game(){
         }
 
         rdpq_attach(display_get(), NULL);
+        rdpq_set_scissor(0,0,640,480, display_get_rdpinterlace(), display_get_rdpfield());
         // background drawing
         render_background();
 
@@ -420,12 +502,20 @@ void menu_quick_game(){
         teaminfo_init(teams_selected_index[0], TEAM_LEFT);
         teaminfo_init(teams_selected_index[1], TEAM_RIGHT);
         rspq_wait();
-        display_close();
-        display_init(RESOLUTION_640x480, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DEDITHER);
+        if(!is_memory_expanded()){
+            display_close();
+            display_init((resolution_t){.width = 640, .height = 480, .interlaced = INTERLACE_RDP}, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DEDITHER);
+            if(get_tv_type() == TV_PAL) {
+                vi_set_borders((vi_borders_t){.up = 48, .down = 48});
+                vi_set_yscale_factor(2.0f);
+            }
+        }
         game_start(map_selected);
         rspq_wait();
-        display_close();
-        display_init(RESOLUTION_640x480, DEPTH_16_BPP, is_memory_expanded()? 3 : 2, GAMMA_NONE, FILTERS_DEDITHER);
+        if(!is_memory_expanded()){
+            display_close();
+            display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_DEDITHER);
+        }
         background = sprite_load("rom:/textures/ui/menu_bg.sprite");
         bgm_play("1_select", true, 1);
     }
@@ -502,6 +592,7 @@ void menu_league(){
         }
 
         rdpq_attach(display_get(), NULL);
+        rdpq_set_scissor(0,0,640,480, display_get_rdpinterlace(), display_get_rdpfield());
         // background drawing
         render_background();
 
@@ -580,6 +671,7 @@ void menu_league(){
                 if(pressed.b && i >= 7) break;
 
                 rdpq_attach(display_get(), NULL);
+                rdpq_set_scissor(0,0,640,480, display_get_rdpinterlace(), display_get_rdpfield());
                 // background drawing
                 render_background();
 
@@ -643,13 +735,21 @@ void menu_league(){
                 teaminfo_init(teams_selected_index, TEAM_LEFT);
                 teaminfo_init(curteamagainst, TEAM_RIGHT);
                 rspq_wait();
-                display_close();
-                display_init(RESOLUTION_640x480, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DEDITHER);
+                if(!is_memory_expanded()){
+                    display_close();
+                    display_init((resolution_t){.width = 640, .height = 480, .interlaced = INTERLACE_RDP}, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DEDITHER);
+                    if(get_tv_type() == TV_PAL) {
+                        vi_set_borders((vi_borders_t){.up = 48, .down = 48});
+                        vi_set_yscale_factor(2.0f);
+                    }
+                }
                 int curmap = randm(4); while(curmap == lastmapplayed) curmap = randm(4); // random map, don't repeat consecutevly
                 game_start(&maps[curmap]);
                 rspq_wait();
-                display_close();
-                display_init(RESOLUTION_640x480, DEPTH_16_BPP,is_memory_expanded()? 3 : 2, GAMMA_NONE, FILTERS_DEDITHER);
+                if(!is_memory_expanded()){
+                    display_close();
+                    display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_DEDITHER);
+                }
                 background = sprite_load("rom:/textures/ui/menu_bg.sprite");
                 bgm_play("1_select", true, 1);
 
@@ -712,8 +812,10 @@ void menu_league(){
 
                 if(player_winner){
                     gamestatus.state.stadium_unlocked = true;
-                    engine_eeprom_save_manual();
-                    engine_eeprom_save_persistent();
+                    bool saved = true;
+                    if(!engine_eeprom_save_manual()) saved = false;
+                    if(!engine_eeprom_save_persistent()) saved = false;
+                    if(!saved) eeprom_error_screen();
                     float offset = 400;
                     sound_play("Congratulations", false);
                     bgm_play("9_congrats", true, 1);
@@ -736,6 +838,7 @@ void menu_league(){
                         effects_update();
 
                         rdpq_attach(display_get(), NULL);
+                        rdpq_set_scissor(0,0,640,480, display_get_rdpinterlace(), display_get_rdpfield());
                         render_background();
 
                         rdpq_set_mode_standard();
@@ -810,8 +913,10 @@ void menu_settings(){
         if(pressed.b) {
             sound_play("menu_confirm", false);
             effects_add_rumble(JOYPAD_PORT_1, 0.1f);
-            engine_eeprom_save_manual();
-            engine_eeprom_save_persistent();
+            bool saved = true;
+            if(!engine_eeprom_save_manual()) saved = false;
+            if(!engine_eeprom_save_persistent()) saved = false;
+            if(!saved) eeprom_error_screen();
             return;
         }
 
@@ -819,6 +924,7 @@ void menu_settings(){
         effects_update();
 
         rdpq_attach(display_get(), NULL);
+        rdpq_set_scissor(0,0,640,480, display_get_rdpinterlace(), display_get_rdpfield());
         render_background();
 
         rdpq_set_mode_standard();
@@ -908,6 +1014,7 @@ void menu_main(){
         effects_update();
 
         rdpq_attach(display_get(), NULL);
+        rdpq_set_scissor(0,0,640,480, display_get_rdpinterlace(), display_get_rdpfield());
         render_background();
 
         rdpq_set_mode_standard();

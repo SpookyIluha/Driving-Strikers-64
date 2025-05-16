@@ -16,7 +16,7 @@
 match_t matchinfo;
 mapinfo_t* current_map = NULL;
 
-T3DViewport viewport[5];
+T3DViewport viewport[6];
 color_t border_time_color;
 color_t border_time_score;
 uint8_t colorAmbient[4] = {255, 255, 255, 0xFF};
@@ -126,7 +126,7 @@ void exposure_set(void* framebuffer){
 
   // min/max exposure levels
   if(exposure > 3) exposure -= 0.05f;
-  if(exposure < 0) exposure = 0;
+  if(exposure < 0.5f) exposure = 0.5f;
 }
 
 
@@ -263,10 +263,10 @@ void game_draw(){
 
   t3d_vec3_lerp(&maincamera.camTarget_off, &maincamera.camTarget_off, &maincamera.camTarget, 0.1f);
   t3d_vec3_lerp(&maincamera.camPos_off, &maincamera.camPos_off, &maincamera.camPos, 0.1f);
-  t3d_viewport_set_projection(&viewport[(frame) % 5], T3D_DEG_TO_RAD(70.0f), 16.0f, 1000.0f);  
+  t3d_viewport_set_projection(&viewport[(frame) % 6], T3D_DEG_TO_RAD(70.0f), 16.0f, 1000.0f);  
   T3DVec3 camtarg_shake = (T3DVec3){.x = frandr(-1,1) * effects.screenshaketime, .y = frandr(-1,1) * effects.screenshaketime, .z = frandr(-1,1) * effects.screenshaketime};
   t3d_vec3_add(&camtarg_shake, &maincamera.camTarget_off, &camtarg_shake);
-  t3d_viewport_look_at(&viewport[(frame) % 5], &maincamera.camPos_off, &camtarg_shake, &(T3DVec3){{0,1,0}});
+  t3d_viewport_look_at(&viewport[(frame) % 6], &maincamera.camPos_off, &camtarg_shake, &(T3DVec3){{0,1,0}});
 
   t3d_mat4_from_srt_euler(&modelMat,
     (float[3]){modelScale, modelScale, modelScale},
@@ -284,7 +284,8 @@ void game_draw(){
   t3d_mat4_to_fixed(modelMatFP, &modelMat);
 
     t3d_frame_start();
-    t3d_viewport_attach(&viewport[(frame) % 5]);
+    t3d_viewport_attach(&viewport[(frame) % 6]);
+    rdpq_set_scissor(0,0,display_get_width(),display_get_height(), display_get_rdpinterlace(), display_get_rdpfield());
 
     t3d_light_set_ambient(colorAmbient);
     t3d_light_set_count(0);
@@ -377,30 +378,30 @@ void game_draw(){
       t3d_matrix_pop(1);
       rdpq_sync_pipe();
       rdpq_set_mode_fill(border_time_color);
-      rdpq_fill_rectangle(222,26,260,42);
+      rdpq_fill_rectangle(190,24,240,44);
       rdpq_set_mode_fill(color_from_packed32(matchinfo.tleft.team->teamcolor));
-      rdpq_fill_rectangle(260,26,293,42);
+      rdpq_fill_rectangle(240,24,282,44);
       rdpq_set_mode_fill(border_time_score);
-      rdpq_fill_rectangle(293,26,346,42);
+      rdpq_fill_rectangle(282,24,353,44);
       rdpq_set_mode_fill(color_from_packed32(matchinfo.tright.team->teamcolor));
-      rdpq_fill_rectangle(346,26,380,42);
+      rdpq_fill_rectangle(353,24,395,44);
   
       rdpq_textparms_t textparms = {0};
       textparms.align = ALIGN_CENTER;
-      textparms.width = 260 - 222;
-      rdpq_text_printf(&textparms, 1, 222, 38, "%02i:%02i", (int)matchinfo.matchtimeleft / 60, (int)matchinfo.matchtimeleft % 60);
-      textparms.width = 293 - 260;
+      textparms.width = 240 - 190;
+      rdpq_text_printf(&textparms, 1, 190, 39, "%02i:%02i", (int)matchinfo.matchtimeleft / 60, (int)matchinfo.matchtimeleft % 60);
+      textparms.width = 282 - 240;
       textparms.style_id = matchinfo.tleft.team->style;
-      rdpq_text_printf(&textparms, 1, 262, 38, matchinfo.tleft.team->teamshortname);
+      rdpq_text_printf(&textparms, 1, 240, 39, matchinfo.tleft.team->teamshortname);
       textparms.style_id = matchinfo.tright.team->style;
-      rdpq_text_printf(&textparms, 1, 346, 38, matchinfo.tright.team->teamshortname);
-      textparms.width = 346 - 293;
+      rdpq_text_printf(&textparms, 1, 353, 39, matchinfo.tright.team->teamshortname);
+      textparms.width = 353 - 282;
       textparms.style_id = 1;
-      rdpq_text_printf(&textparms, 1, 293, 38, "%i - %i", matchinfo.tleft.score, matchinfo.tright.score);
+      rdpq_text_printf(&textparms, 1, 282, 39, "%i - %i", matchinfo.tleft.score, matchinfo.tright.score);
       dplDrawHUD = rspq_block_end();
     } rspq_block_run(dplDrawHUD);
 
-    //rdpq_text_printf(NULL, 1, 30, 30, "^01FPS: %.2f", display_get_fps());
+    //rdpq_text_printf(NULL, 1, 50, 50, "^01FPS: %.2f", display_get_fps());
     //heap_stats_t stats; sys_get_heap_stats(&stats);
     //rdpq_text_printf(NULL, 1, 30, 50, "MEM: %i total, %i used", stats.total, stats.used);
 }
@@ -429,6 +430,7 @@ bool game_pause(){
           selection = 1 - selection;
         }
         rdpq_attach(display_get(), NULL);
+        rdpq_set_scissor(0,0,display_get_width(),display_get_height(), display_get_rdpinterlace(), display_get_rdpfield());
         game_draw();
         rdpq_set_mode_standard();
         rdpq_mode_combiner(RDPQ_COMBINER_FLAT);
@@ -466,6 +468,7 @@ bool game_update(){
     joypad_poll();
 
     joypad_buttons_t pressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
+    if(matchinfo.demomatch && (pressed.raw != 0 || matchinfo.matchtimeleft < 0.5f)) return false;
     if(pressed.start && (matchinfo.state == MATCH_PAUSE || matchinfo.state == MATCH_PLAY)) {
       matchinfo.state = MATCH_PAUSE;
       bool cont = game_pause();
@@ -526,6 +529,7 @@ void game_intro(){
 
 
     rdpq_attach(display_get(), NULL);
+    rdpq_set_scissor(0,0,display_get_width(),display_get_height(), display_get_rdpinterlace(), display_get_rdpfield());
     game_draw();
     rdpq_textparms_t parms; parms.align = ALIGN_RIGHT; parms.width = display_get_width(); parms.style_id = 1;
     rdpq_text_printf(&parms, 2, -40, display_get_height() - 45, current_map->name);
@@ -549,6 +553,7 @@ void game_countdown(){
     game_update();
 
     rdpq_attach(display_get(), NULL);
+    rdpq_set_scissor(0,0,display_get_width(),display_get_height(), display_get_rdpinterlace(), display_get_rdpfield());
     game_draw();
     int timerint = matchinfo.countdown;
     rdpq_blitparms_t parms;
@@ -584,6 +589,7 @@ bool game_play(){
     }
 
     rdpq_attach(display_get(), NULL);
+    rdpq_set_scissor(0,0,display_get_width(),display_get_height(), display_get_rdpinterlace(), display_get_rdpfield());
     game_draw();
     rdpq_detach_show();
     
@@ -609,6 +615,7 @@ bool game_play(){
     countdowntimer -= display_get_delta_time();
     game_update();
     rdpq_attach(display_get(), NULL);
+    rdpq_set_scissor(0,0,display_get_width(),display_get_height(), display_get_rdpinterlace(), display_get_rdpfield());
     game_draw();
     if(message) {
       float scale = ((4 - countdowntimer) / 2);
@@ -629,40 +636,51 @@ void game_score(){
   float countdowntimer = 15;
   bool pressed_a = false;
   sprite_t* button_a = sprite_load("rom:/textures/ui/button_a.rgba32.sprite");
+  rspq_block_t* scoreblock = NULL;
   while(countdowntimer > 0 && !pressed_a){
     countdowntimer -= display_get_delta_time();
     game_update();
     joypad_buttons_t pressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
     if(pressed.a) pressed_a = true;
     rdpq_attach(display_get(), NULL);
+    rdpq_set_scissor(0,0,display_get_width(),display_get_height(), display_get_rdpinterlace(), display_get_rdpfield());
     game_draw();
-    rdpq_set_mode_standard();
-    rdpq_mode_combiner(RDPQ_COMBINER_FLAT);
-    rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
-    rdpq_mode_antialias(AA_REDUCED);
-    
-    for(int i = 0; i < 5; i++){
-      int y = (i * 40) + 130;
-      rdpq_set_prim_color(i % 2? RGBA32(0,20,20,128) : RGBA32(0,0,0,128));
-      rdpq_fill_rectangle(45, y, display_get_width() - 45, y + 40);
-    }
+    if(!scoreblock){
+      rspq_block_begin();
+      rdpq_set_mode_standard();
+      rdpq_mode_combiner(RDPQ_COMBINER_FLAT);
+      rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
+      rdpq_mode_antialias(AA_REDUCED);
+      
+      for(int i = 0; i < 5; i++){
+        int y = (i * 40) + 130;
+        rdpq_set_prim_color(i % 2? RGBA32(0,20,20,128) : RGBA32(0,0,0,128));
+        rdpq_fill_rectangle(45, y, display_get_width() - 45, y + 40);
+      }
 
-    rdpq_mode_combiner(RDPQ_COMBINER_TEX);
-    rdpq_sprite_blit(button_a, 450, 425, NULL);
-    rdpq_textparms_t parms; parms.align = ALIGN_CENTER; parms.valign = VALIGN_CENTER; parms.width = display_get_width(); parms.height = 40; parms.style_id = 1;
-    float left_possession = (matchinfo.tleft.posession / (matchinfo.tleft.posession + matchinfo.tright.posession)) * 100;
-    float right_possession = (matchinfo.tright.posession / (matchinfo.tleft.posession + matchinfo.tright.posession)) * 100;
-    rdpq_text_printf(&parms, 4, 0, 130, dictstr("match_s_stats"));
-    rdpq_text_printf(&parms, 4, 0, 170, "%i                    %s                     %i", matchinfo.tleft.score,  dictstr("match_s_goals"),  matchinfo.tright.score);
-    rdpq_text_printf(&parms, 4, 0, 210, "%i                    %s                     %i", matchinfo.tleft.shots,  dictstr("match_s_shots"),  matchinfo.tright.shots);
-    rdpq_text_printf(&parms, 4, 0, 250, "%i              %s             %i", matchinfo.tleft.shotsontarget,  dictstr("match_s_shotsont"),  matchinfo.tright.shotsontarget);
-    rdpq_text_printf(&parms, 4, 0, 290, "%.0f%%                %s                %.0f%%", left_possession,  dictstr("match_s_posession"),  right_possession);
-    rdpq_textparms_t parms2; parms2.style_id = 2;
-    rdpq_text_printf(&parms2, 3, 490, 445, dictstr("match_s_continue")); 
+      rdpq_mode_combiner(RDPQ_COMBINER_TEX);
+      rdpq_sprite_blit(button_a, 450, 425, NULL);
+      rdpq_textparms_t parms; parms.align = ALIGN_CENTER; parms.valign = VALIGN_CENTER; parms.width = display_get_width(); parms.height = 40; parms.style_id = 1;
+      float left_possession = (matchinfo.tleft.posession / (matchinfo.tleft.posession + matchinfo.tright.posession)) * 100;
+      float right_possession = (matchinfo.tright.posession / (matchinfo.tleft.posession + matchinfo.tright.posession)) * 100;
+      rdpq_text_printf(&parms, 4, 0, 130, dictstr("match_s_stats"));
+      rdpq_text_printf(&parms, 4, -150, 170, "%i", matchinfo.tleft.score); rdpq_text_printf(&parms, 4, 150, 170, "%i", matchinfo.tright.score);
+      rdpq_text_printf(&parms, 4, 0, 170, "%s", dictstr("match_s_goals"));
+      rdpq_text_printf(&parms, 4, -150, 210, "%i", matchinfo.tleft.shots); rdpq_text_printf(&parms, 4, 150, 210, "%i", matchinfo.tright.shots);
+      rdpq_text_printf(&parms, 4, 0, 210, "%s", dictstr("match_s_shots"));
+      rdpq_text_printf(&parms, 4, -150, 250, "%i", matchinfo.tleft.shotsontarget); rdpq_text_printf(&parms, 4, 150, 250, "%i", matchinfo.tright.shotsontarget);
+      rdpq_text_printf(&parms, 4, 0, 250, "%s", dictstr("match_s_shotsont"));
+      rdpq_text_printf(&parms, 4, -150, 290, "%.0f%%", left_possession); rdpq_text_printf(&parms, 4, 150, 290, "%.0f%%", right_possession);
+      rdpq_text_printf(&parms, 4, 0, 290, "%s",dictstr("match_s_posession"));
+      rdpq_textparms_t parms2; parms2.style_id = 2;
+      rdpq_text_printf(&parms2, 3, 490, 445, dictstr("match_s_continue")); 
+      scoreblock = rspq_block_end();
+    } rspq_block_run(scoreblock);
     rdpq_detach_show();
   }
   rspq_wait();
   sprite_free(button_a);
+  rspq_block_free(scoreblock);
 }
 
 void game_free(){
@@ -695,6 +713,11 @@ void game_free(){
   memset(&maincamera, 0, sizeof(maincamera));
 }
 
+void game_start_demo(mapinfo_t* map){
+  matchinfo.demomatch = true;
+  game_start(map);
+}
+
 void game_start(mapinfo_t* map)
 {
   switch(gamestatus.state.game.settings.graphics){
@@ -702,10 +725,12 @@ void game_start(mapinfo_t* map)
     case DEFAULT: vi_set_aa_mode(VI_AA_MODE_RESAMPLE_FETCH_ALWAYS); vi_set_dedither(false); break;
     case NICEST:  vi_set_aa_mode(VI_AA_MODE_RESAMPLE_FETCH_ALWAYS); vi_set_dedither(true);break;
   }
+
   current_map = map;
   border_time_color = RGBA32(255,217,0,255);
   border_time_score = RGBA32(0,84,255,255);
-  viewport[0] = t3d_viewport_create(); viewport[1] = t3d_viewport_create(); viewport[2] = t3d_viewport_create(); viewport[3] = t3d_viewport_create(); viewport[4] = t3d_viewport_create();
+  for(int i = 0; i < 6; i++)
+    viewport[i] = t3d_viewport_create();
   exposure = 5;
   exposure_bias = current_map->hdr.tonemappingaverage;
 
@@ -736,6 +761,19 @@ void game_start(mapinfo_t* map)
   playball_init();
   TPE_worldInit(&world,bodies,bodiescount,environmentDistance);
   world.collisionCallback = entityCollisionCallback;
+
+  if(matchinfo.demomatch){
+    matchinfo.matchtimeleft = 60;
+    bool contmatch = true;
+    while(matchinfo.matchtimeleft > 0.5 && contmatch){
+      game_countdown();
+      if(!game_play()) contmatch = false;
+    }
+    vi_set_dedither(true); vi_set_aa_mode(VI_AA_MODE_NONE);
+    game_free();
+    return;
+  }
+
   game_intro(); 
 
   #if !DEBUG_RDP

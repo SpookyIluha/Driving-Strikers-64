@@ -27,8 +27,8 @@ uint32_t playercolors[4] = {
     if(!playball.modelshadow) playball.modelshadow = t3d_model_load("rom:/models/ball_shadow.t3dm");
     t3d_mat4_identity(&playball.modelMatball);
     t3d_mat4_identity(&playball.modelshadowMat);
-    if(!playball.modelMatFPball) playball.modelMatFPball = malloc_uncached(sizeof(T3DMat4FP)*5);
-    if(!playball.modelMatFPshadow) playball.modelMatFPshadow = malloc_uncached(sizeof(T3DMat4FP)*5);
+    if(!playball.modelMatFPball) playball.modelMatFPball = malloc_uncached(sizeof(T3DMat4FP)*6);
+    if(!playball.modelMatFPshadow) playball.modelMatFPshadow = malloc_uncached(sizeof(T3DMat4FP)*6);
     playball.ballPoslast = (T3DVec3){.x = 0,.y = TPE_F * 8,.z = 0};
     fm_quat_identity(&playball.ballquat);
     playball.joint = TPE_joint((TPE_Vec3){0,TPE_F * 8,0},TPE_F / 1.3);
@@ -97,19 +97,19 @@ uint32_t playercolors[4] = {
       (float[3]){0, 0, 0},
       (float[3]){playball.ballPos_t3d.x* 64, 0, playball.ballPos_t3d.z* 64}
     );
-    t3d_mat4_to_fixed(&playball.modelMatFPball[(frame) % 5], &playball.modelMatball);
-    t3d_mat4_to_fixed(&playball.modelMatFPshadow[(frame) % 5], &playball.modelshadowMat);
+    t3d_mat4_to_fixed(&playball.modelMatFPball[(frame) % 6], &playball.modelMatball);
+    t3d_mat4_to_fixed(&playball.modelMatFPshadow[(frame) % 6], &playball.modelshadowMat);
   }
   
   void playball_draw(){
     if(!playball.init) return;
-    t3d_matrix_set(&playball.modelMatFPshadow[(frame) % 5], true); 
+    t3d_matrix_set(&playball.modelMatFPshadow[(frame) % 6], true); 
     if(!playball.blockshadow){
       rspq_block_begin();
       t3d_model_draw(playball.modelshadow);
       playball.blockshadow = rspq_block_end();
     } rspq_block_run(playball.blockshadow);
-    t3d_matrix_set(&playball.modelMatFPball[(frame) % 5], true); 
+    t3d_matrix_set(&playball.modelMatFPball[(frame) % 6], true); 
     if(!playball.blockmodel){
       rspq_block_begin();
       t3d_model_draw(playball.modelball);
@@ -121,7 +121,7 @@ uint32_t playercolors[4] = {
   
   void playball_draw_shadow(){
     if(!playball.init) return;
-    t3d_matrix_set(&playball.modelMatFPshadow[(frame) % 5], true); 
+    t3d_matrix_set(&playball.modelMatFPshadow[(frame) % 6], true); 
     if(!playball.blockshadow){
       rspq_block_begin();
       t3d_model_draw(playball.modelshadow);
@@ -162,8 +162,8 @@ uint32_t playercolors[4] = {
     if(!car->nitromodel) car->nitromodel = t3d_model_load("rom:/models/celica/celica_nitro.t3dm");
     t3d_mat4_identity(&car->modelMat);
     t3d_mat4_identity(&car->shadowmodelMat);
-    if(!car->modelMatFP) car->modelMatFP = malloc_uncached(sizeof(T3DMat4FP)*5);
-    if(!car->shadowmodelMatFP) car->shadowmodelMatFP = malloc_uncached(sizeof(T3DMat4FP)*5);
+    if(!car->modelMatFP) car->modelMatFP = malloc_uncached(sizeof(T3DMat4FP)*6);
+    if(!car->shadowmodelMatFP) car->shadowmodelMatFP = malloc_uncached(sizeof(T3DMat4FP)*6);
     if(!car->particles) {
       uint32_t allocSize = sizeof(TPXParticle) * PARTICLES_MAX / 2;
       car->particles = malloc_uncached(allocSize);
@@ -357,13 +357,13 @@ uint32_t playercolors[4] = {
         (float[3]){carplayer[i].Pos_t3d.x * 64, 0, carplayer[i].Pos_t3d.z * 64}
       );
       // ======== Update ======== //  
-      t3d_mat4_to_fixed(&carplayer[i].modelMatFP[(frame) % 5], &carplayer[i].modelMat);
-      t3d_mat4_to_fixed(&carplayer[i].shadowmodelMatFP[(frame) % 5], &carplayer[i].shadowmodelMat);
+      t3d_mat4_to_fixed(&carplayer[i].modelMatFP[(frame) % 6], &carplayer[i].modelMat);
+      t3d_mat4_to_fixed(&carplayer[i].shadowmodelMatFP[(frame) % 6], &carplayer[i].shadowmodelMat);
     }
   }
   
   void carplayer_draw(carplayer_t* car){
-    t3d_matrix_set(&car->modelMatFP[(frame) % 5], true); 
+    t3d_matrix_set(&car->modelMatFP[(frame) % 6], true); 
     if(car->isnitro){
       rdpq_set_prim_color(car->playercontroller >= 0? color_from_packed32(playercolors[car->playercontroller]) : RGBA32(255,255,255,255));
       t3d_model_draw(car->nitromodel);
@@ -380,7 +380,7 @@ uint32_t playercolors[4] = {
   }
 
   void carplayer_draw_teleport_particles(carplayer_t* car){
-      t3d_matrix_set(&car->modelMatFP[(frame) % 5], true); 
+      t3d_matrix_set(&car->modelMatFP[(frame) % 6], true); 
       // Upload texture for the following particles.
       // The ucode itself never loads or switches any textures,
       // so you can only use what you have uploaded before in a single draw call.
@@ -399,7 +399,7 @@ uint32_t playercolors[4] = {
   }
 
   void carplayer_draw_shadow(carplayer_t* car){
-    t3d_matrix_set(&car->shadowmodelMatFP[(frame) % 5], true); 
+    t3d_matrix_set(&car->shadowmodelMatFP[(frame) % 6], true); 
     if(!car->blockshadow){
       rspq_block_begin();
       t3d_model_draw(car->shadowmodel);

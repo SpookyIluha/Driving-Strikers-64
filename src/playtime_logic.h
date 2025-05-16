@@ -29,11 +29,14 @@ typedef struct{
   float countdown;
   int playercontrollers[4];
   bool exited;
+  bool demomatch;
 } match_t;
 
 extern match_t matchinfo;
 
 void matchinfo_init();
+
+void game_start_demo(mapinfo_t* map);
 
 void game_start(mapinfo_t* map);
 
