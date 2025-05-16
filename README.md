@@ -21,7 +21,7 @@ This release of the N64 port of Driving Strikers has been approved for distribut
 - Physics-driven gameplay using the [Tiny Physics Engine](https://github.com/ESPboy-edu/ESPboy_tinyphysicsengine) open-source library
 - Multilanguage support with 8 different languages using .ini configs and [inih](https://github.com/benhoyt/inih) open-source library
 - Stereo CD quality music with voiced audio on a 16MB cartridge
-- Full 480i TrueColor graphics at high framerates of at least 30+ FPS ___without the expansion pak___, extremely rare in N64 titles
+- Full 480i TrueColor graphics at high framerates of up to 60 FPS ___without the expansion pak___, extremely rare in N64 titles
 - Quality artwork and levels with antialiasing and high-res fullcolor mipmapped, bumpmapped textures
 - HDR rendering and bright lighting with autoexposure, never before seen on any N64 title
 - Rumble Pak and EEPROM save support
