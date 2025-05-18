@@ -267,16 +267,20 @@ void menu_cover(){
             if(!is_memory_expanded()){
                 display_close();
                 display_init((resolution_t){.width = 640, .height = 480, .interlaced = INTERLACE_RDP}, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DEDITHER);
-                if(get_tv_type() == TV_PAL) {
-                    vi_set_borders((vi_borders_t){.up = 48, .down = 48});
-                    vi_set_yscale_factor(2.0f);
-                }
+            }
+            if(get_tv_type() == TV_PAL) {
+                vi_set_borders((vi_borders_t){.up = 48, .down = 48});
+                vi_set_yscale_factor(2.0f);
             }
             game_start_demo(&maps[randm(4)]);
             rspq_wait();
             if(!is_memory_expanded()){
                 display_close();
                 display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_DEDITHER);
+            }
+            if(get_tv_type() == TV_PAL) {
+                vi_set_borders((vi_borders_t){.up = 48, .down = 48});
+                vi_set_yscale_factor(2.0f);
             }
             background = sprite_load("rom:/textures/logos/cover.sprite");
             bgm_play("1_select", true, 1);
@@ -505,16 +509,20 @@ void menu_quick_game(){
         if(!is_memory_expanded()){
             display_close();
             display_init((resolution_t){.width = 640, .height = 480, .interlaced = INTERLACE_RDP}, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DEDITHER);
-            if(get_tv_type() == TV_PAL) {
-                vi_set_borders((vi_borders_t){.up = 48, .down = 48});
-                vi_set_yscale_factor(2.0f);
-            }
+        }
+        if(get_tv_type() == TV_PAL) {
+            vi_set_borders((vi_borders_t){.up = 48, .down = 48});
+            vi_set_yscale_factor(2.0f);
         }
         game_start(map_selected);
         rspq_wait();
         if(!is_memory_expanded()){
             display_close();
             display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_DEDITHER);
+        }
+        if(get_tv_type() == TV_PAL) {
+            vi_set_borders((vi_borders_t){.up = 48, .down = 48});
+            vi_set_yscale_factor(2.0f);
         }
         background = sprite_load("rom:/textures/ui/menu_bg.sprite");
         bgm_play("1_select", true, 1);
@@ -738,10 +746,10 @@ void menu_league(){
                 if(!is_memory_expanded()){
                     display_close();
                     display_init((resolution_t){.width = 640, .height = 480, .interlaced = INTERLACE_RDP}, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DEDITHER);
-                    if(get_tv_type() == TV_PAL) {
-                        vi_set_borders((vi_borders_t){.up = 48, .down = 48});
-                        vi_set_yscale_factor(2.0f);
-                    }
+                }
+                if(get_tv_type() == TV_PAL) {
+                    vi_set_borders((vi_borders_t){.up = 48, .down = 48});
+                    vi_set_yscale_factor(2.0f);
                 }
                 int curmap = randm(4); while(curmap == lastmapplayed) curmap = randm(4); // random map, don't repeat consecutevly
                 game_start(&maps[curmap]);
@@ -749,6 +757,10 @@ void menu_league(){
                 if(!is_memory_expanded()){
                     display_close();
                     display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_DEDITHER);
+                }
+                if(get_tv_type() == TV_PAL) {
+                    vi_set_borders((vi_borders_t){.up = 48, .down = 48});
+                    vi_set_yscale_factor(2.0f);
                 }
                 background = sprite_load("rom:/textures/ui/menu_bg.sprite");
                 bgm_play("1_select", true, 1);

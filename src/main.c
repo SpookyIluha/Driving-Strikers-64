@@ -43,12 +43,13 @@ void setup(){
   effects_rumble_stop();
   if(is_memory_expanded()){
       display_init((resolution_t){.width = 640, .height = 480, .interlaced = INTERLACE_RDP}, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DEDITHER);
-      if(get_tv_type() == TV_PAL) {
-          vi_set_borders((vi_borders_t){.up = 48, .down = 48});
-          vi_set_yscale_factor(2.0f);
-      }
   }
   else display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_DEDITHER);
+
+  if(get_tv_type() == TV_PAL) {
+      vi_set_borders((vi_borders_t){.up = 48, .down = 48});
+      vi_set_yscale_factor(2.0f);
+  }
   audio_prewarm_all();
 
 #if DEBUG_RDP
