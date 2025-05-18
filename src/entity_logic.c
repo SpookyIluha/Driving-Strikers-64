@@ -290,6 +290,11 @@ uint32_t playercolors[4] = {
       else{
         input = joypad_get_inputs(carplayer[i].playercontroller);
         pressed = joypad_get_buttons_pressed(carplayer[i].playercontroller); }
+
+      if(matchinfo.state != MATCH_END || matchinfo.state != MATCH_INTRO){
+        if(pressed.a) sound_play("horn", false);
+        if(pressed.b) sound_play("alarm", false);
+      }
       if(matchinfo.state != MATCH_PLAY) {
         memset(&input, 0, sizeof(joypad_inputs_t));
         memset(&pressed, 0, sizeof(joypad_buttons_t));}

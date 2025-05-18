@@ -606,7 +606,8 @@ bool game_play(){
     message = sprite_load("rom:/textures/ui/goal.rgba32.sprite");
     playball.init = false;
     effects_add_shake(2.5f);
-    for(int i = 0; i < 4; i++) effects_add_rumble(i, 1.0f);
+    if(!matchinfo.demomatch)
+      for(int i = 0; i < 4; i++) effects_add_rumble(i, 1.0f);
     TPE_Vec3 force  = {.x = playball.ballPos_t3d.x > 0? -0.5 * TPE_F : 0.5 * TPE_F, 0.5 * TPE_F, 0};
     for(int i = 0; i < 4; i++) TPE_bodyAccelerate(&bodies[carplayer[i].bodyidx], force);
   }

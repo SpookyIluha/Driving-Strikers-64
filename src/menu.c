@@ -953,7 +953,7 @@ void menu_settings(){
         rdpq_text_printf(&parmstext, 4, 320 + offset,200, text);}
         rdpq_text_printf(&parmstext, 4, 320 + offset,240, gamestatus.state.game.settings.vibration? dictstr("mm_o_vibration_1") : dictstr("mm_o_vibration_0"));
         rdpq_text_printf(&parmstext, 4, 320 + offset,280, "%i%%", (int)(gamestatus.state.game.settings.deadzone * 100));
-        rdpq_text_printf(&parmstext, 4, 320 + offset,320, engine_get_language());
+        rdpq_text_printf(&parmstext, 4, 320 + offset,320, dictstr("lang_name"));
 
         rdpq_textparms_t parms2; parms2.style_id = 2;
         rdpq_text_printf(&parms2, 3, 540 - offset, 445, dictstr("mm_save")); 
