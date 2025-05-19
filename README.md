@@ -12,6 +12,9 @@ Expansion Pak is ___NOT___ needed, but recommended to play this game.
 
 This release of the N64 port of Driving Strikers has been approved for distribution by the original developers of the game; Luke Benstead and David Reichelt (LD2K). The gameplay and style may vary from the original release. If you enjoy this port please consider supporting the developers by purchasing the original game on [Steam](https://store.steampowered.com/app/2384430/Driving_Strikers/) (PC/Linux) or [Itch.io](https://reality-jump.itch.io/driving-strikers).
 
+# Known issues:
+- EEPROM may not work on older Everdrive flashcart models, or with outdated software (libdragon incompatibility)
+
 # Controls:
 - Stick: move around
 - Z trigger: nitro
