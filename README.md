@@ -44,3 +44,10 @@ This release of the N64 port of Driving Strikers has been approved for distribut
 ![drivingstrikers64 2025-05-06 11-48-03](https://github.com/user-attachments/assets/22263558-a7ee-4a37-a985-d111f4401768)
 ![drivingstrikers64 2025-05-06 11-47-37](https://github.com/user-attachments/assets/769c4fdb-0a27-4bb6-b2ab-78419cca0e37)
 ![drivingstrikers64 2025-04-30 01-07-46](https://github.com/user-attachments/assets/d8161f4f-937b-401c-ad47-a2efbe1cbe2e)
+
+# Visual comparison between N64 (left) with DC (right) version
+
+![image](https://github.com/user-attachments/assets/3c6f979f-eb54-44b4-bff4-16a6dc151897)
+![image](https://github.com/user-attachments/assets/892c1f4b-818f-4f1d-9d1b-a147288e3bad)
+![image](https://github.com/user-attachments/assets/53b9b09f-0a60-4b50-aaa3-3732de8748ca)
+
