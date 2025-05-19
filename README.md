@@ -50,7 +50,9 @@ This release of the N64 port of Driving Strikers has been approved for distribut
 
 # Visual comparison between N64 (left) with DC (right) version
 
+![image](https://github.com/user-attachments/assets/6e5c92e9-08d2-48fa-8a41-99df41b86029)
 ![image](https://github.com/user-attachments/assets/3c6f979f-eb54-44b4-bff4-16a6dc151897)
 ![image](https://github.com/user-attachments/assets/892c1f4b-818f-4f1d-9d1b-a147288e3bad)
 ![image](https://github.com/user-attachments/assets/53b9b09f-0a60-4b50-aaa3-3732de8748ca)
+![image](https://github.com/user-attachments/assets/ea007ff9-b710-4e11-967a-1c55f5f47e84)
 
