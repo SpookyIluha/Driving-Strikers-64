@@ -32,7 +32,7 @@ This release of the N64 port of Driving Strikers has been approved for distribut
 # Build the game
 - Install [Libdragon SDK](https://github.com/DragonMinded/libdragon/tree/unstable) (unstable)
 - Use the [texparms PR](https://github.com/DragonMinded/libdragon/pull/667) from the libdragon unstable PR's
-- Install [Tiny3D](https://github.com/HailToDodongo/tiny3d/tree/no_light) library (no_light branch or later)
+- Install [Tiny3D](https://github.com/HailToDodongo/tiny3d/tree/no_light) library
 - Clone this repository
 - Add your Driving Strikers assets from the Release to the "filesystem" folder
 - Build it with make command
